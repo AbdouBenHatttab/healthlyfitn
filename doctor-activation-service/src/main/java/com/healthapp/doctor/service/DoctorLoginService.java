@@ -93,6 +93,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -145,7 +146,7 @@ public class DoctorLoginService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("email", doctor.getEmail());
         claims.put("userId", doctor.getUserId());
-        claims.put("role", "DOCTOR");
+        claims.put("roles", List.of("DOCTOR"));  // ✅ CHANGÉ: "role" → "roles" + List.of()
         claims.put("doctorId", doctor.getId());
         
         // Call static method directly (no injection needed)
