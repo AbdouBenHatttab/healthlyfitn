@@ -74,4 +74,5 @@ desktop.ini
 **/application-secret.yml
 **/application-secret.properties
 **/*-secret.yml
-**/*-secret.properties
+**/*-secret.propertiesnotification-service/src/main/resources/firebase-service-account.json
+notification-service/src/main/resources/firebase-service-account.json
