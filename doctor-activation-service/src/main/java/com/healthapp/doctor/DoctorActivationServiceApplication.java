@@ -4,6 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.data.mongodb.config.EnableMongoAuditing;
 
 /**
  * Doctor Activation Service
@@ -22,6 +23,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableFeignClients  // Active Feign pour appeler les autres services
+@EnableMongoAuditing
 public class DoctorActivationServiceApplication {
 
     public static void main(String[] args) {

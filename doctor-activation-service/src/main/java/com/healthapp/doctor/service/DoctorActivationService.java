@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.healthapp.notification.service.UserNotificationService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,7 +31,8 @@ public class DoctorActivationService {
     private final DoctorRepository doctorRepository;
     private final DoctorActivationRequestRepository activationRequestRepository;
     private final NotificationClient notificationClient;
-    
+        private final UserNotificationService notificationService;
+
     /**
      * Récupérer tous les médecins en attente d'activation
      */
@@ -188,5 +190,55 @@ public class DoctorActivationService {
                 .registrationDate(doctor.getCreatedAt())
                 .activationRequestDate(doctor.getActivationRequestDate())
                 .build();
+    }
+    /**
+     * Approuver un médecin - AVEC NOTIFICATION FCM
+     */
+    public void activateDoctor(String doctorId) {
+        log.info("Activating doctor with ID: {}", doctorId);
+        
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+        
+        // Activer le doctor
+        doctor.setIsActivated(true);
+        doctor.setActivationDate(LocalDateTime.now());
+        doctorRepository.save(doctor);
+        
+        // ✅ Envoyer notification FCM
+        notificationService.notifyDoctorApproved(
+            doctor.getUserId(),
+            doctor.getFullName()
+        );
+        
+        // Envoyer email (existant)
+        emailService.sendDoctorActivationConfirmation(doctor);
+        
+        log.info("✅ Doctor activated and notified: {}", doctor.getEmail());
+    }
+    
+    /**
+     * Créer une demande d'activation - AVEC NOTIFICATION AUX ADMINS
+     */
+    private void createActivationRequest(Doctor doctor) {
+        DoctorActivationRequest activationRequest = DoctorActivationRequest.builder()
+                .doctorId(doctor.getId())
+                .doctorEmail(doctor.getEmail())
+                .doctorFullName(doctor.getFullName())
+                .medicalLicenseNumber(doctor.getMedicalLicenseNumber())
+                .specialization(doctor.getSpecialization())
+                .hospitalAffiliation(doctor.getHospitalAffiliation())
+                .yearsOfExperience(doctor.getYearsOfExperience())
+                .isPending(true)
+                .requestedAt(LocalDateTime.now())
+                .build();
+        
+        activationRequestRepository.save(activationRequest);
+        
+        // ✅ Notifier les admins via FCM
+        notificationService.notifyAdminsNewDoctor(
+            doctor.getFullName(),
+            doctor.getEmail()
+        );
     }
 }
