@@ -1,58 +1,118 @@
+# # # spring:
+# # #   application:
+# # #     name: notification-service
+# # #   data:
+# # #     mongodb:
+# # #       database: health_notification_db
+
+# # # fcm:
+# # #   credentials:
+# # #     path: firebase-service-account.json  # ✅ Fichier JSON Firebase
+
+
+# # #   # Thymeleaf pour les templates
+# # #   thymeleaf:
+# # #     cache: false
+# # #     prefix: classpath:/templates/
+# # #     suffix: .html
+
+# # # # Port du service
+# # # server:
+# # #   port: ${SERVER_PORT:8084}
+
+# # # # URL du frontend
+# # # app:
+# # #   frontend:
+# # #     url: ${FRONTEND_URL:http://localhost:4200}
+
+# # # # Eureka Client
+# # # eureka:
+# # #   client:
+# # #     service-url:
+# # #       defaultZone: ${EUREKA_SERVER:http://localhost:8761/eureka/}
+# # #     register-with-eureka: true
+# # #     fetch-registry: true
+# # #   instance:
+# # #     prefer-ip-address: true
+# # #     instance-id: ${spring.application.name}:${random.value}
+
+# # # # Resilience4j Circuit Breaker
+# # # resilience4j:
+# # #   circuitbreaker:
+# # #     instances:
+# # #       emailService:
+# # #         register-health-indicator: true
+# # #         sliding-window-size: 10
+# # #         minimum-number-of-calls: 5
+# # #         permitted-number-of-calls-in-half-open-state: 3
+# # #         automatic-transition-from-open-to-half-open-enabled: true
+# # #         wait-duration-in-open-state: 10s
+# # #         failure-rate-threshold: 50
+# # #         record-exceptions:
+# # #           - org.springframework.mail.MailException
+# # #           - jakarta.mail.MessagingException
+
+# # # # Actuator
+# # # management:
+# # #   endpoints:
+# # #     web:
+# # #       exposure:
+# # #         include: health,info,metrics,circuitbreakers
+# # #   endpoint:
+# # #     health:
+# # #       show-details: always
+# # #   health:
+# # #     circuitbreakers:
+# # #       enabled: true
+
+# # # # Logging
+# # # logging:
+# # #   level:
+# # #     com.healthapp.notification: DEBUG
+# # #     org.springframework.mail: DEBUG
+# # #   pattern:
+# # #     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+
+
 # # spring:
 # #   application:
 # #     name: notification-service
 # #   data:
 # #     mongodb:
-# #       database: health_notification_db
-
-# # fcm:
-# #   credentials:
-# #     path: firebase-service-account.json  # ✅ Fichier JSON Firebase
+# #       uri: mongodb://localhost:27017/health_notification_db
 
 
-# #   # Thymeleaf pour les templates
 # #   thymeleaf:
 # #     cache: false
 # #     prefix: classpath:/templates/
 # #     suffix: .html
 
-# # # Port du service
 # # server:
-# #   port: ${SERVER_PORT:8084}
+# #   port: 8084
 
-# # # URL du frontend
+# # # ✅ Configuration Firebase FCM
+# # fcm:
+# #   credentials:
+# #     path: firebase-service-account.json  # Fichier dans src/main/resources/
+
+# # notification:
+# #   admin-email: admin@healthapp.com
+
 # # app:
 # #   frontend:
-# #     url: ${FRONTEND_URL:http://localhost:4200}
+# #     url: http://localhost:4200
 
-# # # Eureka Client
 # # eureka:
 # #   client:
 # #     service-url:
-# #       defaultZone: ${EUREKA_SERVER:http://localhost:8761/eureka/}
+# #       defaultZone: http://localhost:8761/eureka/
 # #     register-with-eureka: true
 # #     fetch-registry: true
 # #   instance:
 # #     prefer-ip-address: true
 # #     instance-id: ${spring.application.name}:${random.value}
 
-# # # Resilience4j Circuit Breaker
-# # resilience4j:
-# #   circuitbreaker:
-# #     instances:
-# #       emailService:
-# #         register-health-indicator: true
-# #         sliding-window-size: 10
-# #         minimum-number-of-calls: 5
-# #         permitted-number-of-calls-in-half-open-state: 3
-# #         automatic-transition-from-open-to-half-open-enabled: true
-# #         wait-duration-in-open-state: 10s
-# #         failure-rate-threshold: 50
-# #         record-exceptions:
-# #           - org.springframework.mail.MailException
-# #           - jakarta.mail.MessagingException
-
-# # # Actuator
 # # management:
 # #   endpoints:
 # #     web:
@@ -61,26 +121,46 @@
 # #   endpoint:
 # #     health:
 # #       show-details: always
-# #   health:
-# #     circuitbreakers:
-# #       enabled: true
 
-# # # Logging
 # # logging:
 # #   level:
 # #     com.healthapp.notification: DEBUG
-# #     org.springframework.mail: DEBUG
 # #   pattern:
 # #     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
 
-
 # spring:
-#   application:
-#     name: notification-service
 #   data:
 #     mongodb:
 #       uri: mongodb://localhost:27017/health_notification_db
+
+#   cloud:
+#     config:
+#       enabled: false
+#   main:
+#     allow-bean-definition-overriding: true
+
+
+#   # ✅ Configuration Email avec Gmail
+#   mail:
+#     host: smtp.gmail.com
+#     port: 587
+#     username: healthapp.healthyfittn@gmail.com
+#     password: hpfk vmdf ptif kuod
+#     properties:
+#       mail:
+#         smtp:
+#           auth: true
+#           starttls:
+#             enable: true
+#             required: true
+#           debug: true
+#           ssl:
+#             trust: smtp.gmail.com
+#         transport:
+#           protocol: smtp
+#     test-connection: false
+  
 
 
 #   thymeleaf:
@@ -91,10 +171,10 @@
 # server:
 #   port: 8084
 
-# # ✅ Configuration Firebase FCM
+# # ✅ Configuration Firebase FCM (pour les notifications push)
 # fcm:
 #   credentials:
-#     path: firebase-service-account.json  # Fichier dans src/main/resources/
+#     path: firebase-service-account.json
 
 # notification:
 #   admin-email: admin@healthapp.com
@@ -106,7 +186,7 @@
 # eureka:
 #   client:
 #     service-url:
-#       defaultZone: http://localhost:8761/eureka/
+#       defaultZone: ${EUREKA_SERVER:http://localhost:8761/eureka/}
 #     register-with-eureka: true
 #     fetch-registry: true
 #   instance:
@@ -132,8 +212,18 @@
 spring:
   application:
     name: notification-service
-  
-  # ✅ Configuration Email avec Gmail
+
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/health_notification_db
+
+  cloud:
+    config:
+      enabled: false
+
+  main:
+    allow-bean-definition-overriding: true
+
   mail:
     host: smtp.gmail.com
     port: 587
@@ -146,15 +236,12 @@ spring:
           starttls:
             enable: true
             required: true
+          debug: true
           ssl:
             trust: smtp.gmail.com
         transport:
           protocol: smtp
     test-connection: false
-  
-  data:
-    mongodb:
-      uri: mongodb://localhost:27017/health_notification_db
 
   thymeleaf:
     cache: false
@@ -164,7 +251,6 @@ spring:
 server:
   port: 8084
 
-# ✅ Configuration Firebase FCM (pour les notifications push)
 fcm:
   credentials:
     path: firebase-service-account.json
@@ -179,12 +265,12 @@ app:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_SERVER:http://localhost:8761/eureka/}
     register-with-eureka: true
     fetch-registry: true
   instance:
     prefer-ip-address: true
-    instance-id: ${spring.application.name}:${random.value}
+    instance-id: "${spring.application.name}-${random.uuid}"
 
 management:
   endpoints:
