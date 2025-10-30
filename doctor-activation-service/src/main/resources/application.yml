@@ -15,7 +15,7 @@ spring:
 
 
 notification:
-  admin-email: admin@healthapp.com   # ⚠️ Remplacer par un vrai email     
+  admin-email: healthapp.healthyfittn@gmail.com   # ⚠️ Remplacer par un vrai email     
 # Port du service
 # server:
 #   port: ${SERVER_PORT:8083}
