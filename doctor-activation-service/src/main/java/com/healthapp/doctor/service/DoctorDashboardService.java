@@ -217,9 +217,9 @@ public class DoctorDashboardService {
 
         // Parse date range
         LocalDateTime startDate = from != null ?
-                LocalDate.parse(from).atStartOfDay() : LocalDateTime.now();
+                LocalDate.parse(from).atStartOfDay() : LocalDate.now().atStartOfDay();
         LocalDateTime endDate = to != null ?
-                LocalDate.parse(to).atTime(LocalTime.MAX) : LocalDateTime.now().plusYears(1);
+                LocalDate.parse(to).atTime(LocalTime.MAX) : LocalDate.now().plusYears(1).atTime(LocalTime.MAX);
 
         Page<Appointment> appointmentsPage;
 
