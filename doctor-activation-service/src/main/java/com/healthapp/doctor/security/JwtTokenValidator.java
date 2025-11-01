@@ -175,8 +175,12 @@ public class JwtTokenValidator extends OncePerRequestFilter {
                         Claims claims = JwtUtil.extractAllClaims(token, jwtSecret);
                         
                         String email = claims.getSubject();
-                        String userIdFromToken = claims.get("userId", String.class);
-                        
+                        String userIdFromToken = claims.get("user_id", String.class);
+                        if (userIdFromToken == null) {
+                            userIdFromToken = claims.get("userId", String.class);
+                        }
+
+
                         // ✅ CORRECTION: Gérer le cas où roles est null
                         @SuppressWarnings("unchecked")
                         List<String> roles = claims.get("roles", List.class);
