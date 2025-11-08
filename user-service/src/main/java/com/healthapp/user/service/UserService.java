@@ -34,7 +34,8 @@ public class UserService {
     
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    
+    private final UserRepository userRepository;
+
     public UserResponse getUserById(String userId) {
         log.info("Fetching user by ID: {}", userId);
         User user = userRepository.findById(userId)
@@ -174,4 +175,33 @@ public class UserService {
                 .activationDate(user.getActivationDate())
                 .build();
     }
+    /**
+     * Get multiple users by IDs (batch fetch)
+     */
+    public List<UserDto> getUsersByIds(List<String> userIds) {
+        log.info("Batch fetching {} users", userIds.size());
+
+        List<User> users = userRepository.findAllById(userIds);
+
+        return users.stream()
+                .map(this::mapToUserDto)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Map User entity to UserDto (for Feign responses)
+     */
+    private UserDto mapToUserDto(User user) {
+        return UserDto.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .birthDate(user.getBirthDate())
+                .gender(user.getGender())
+                .phoneNumber(user.getPhoneNumber())
+                .roles(user.getRoles())
+                .build();
+    }
+
 }

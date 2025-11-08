@@ -12,11 +12,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-/**
- * Appointment Entity - Stored in health_doctor_db
- *
- * Represents medical appointments between doctors and patients.
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -27,14 +22,13 @@ public class Appointment {
     @Id
     private String id;
 
-    // References
     @Indexed
     private String doctorId;
 
     @Indexed
-    private String patientId;
+    private String patientUserId; // ✅ CHANGED: patientId → patientUserId (references User.id from user-service)
 
-    // Cached patient info (denormalized for performance)
+    // Cached patient info for performance (denormalized)
     private String patientName;
     private String patientEmail;
     private String patientPhone;
@@ -42,28 +36,24 @@ public class Appointment {
     // Appointment Scheduling
     @Indexed
     private LocalDateTime appointmentDate;
-
-    private LocalDateTime appointmentEndDate; // appointmentDate + duration
+    private LocalDateTime appointmentEndDate;
 
     @Builder.Default
-    private Integer durationMinutes = 30; // Default 30 minutes
+    private Integer durationMinutes = 30;
 
     // Appointment Details
     @Builder.Default
     private String appointmentType = "CONSULTATION";
-    // Types: CONSULTATION, FOLLOW_UP, EMERGENCY, CHECK_UP, VACCINATION
 
     @Indexed
     @Builder.Default
     private String status = "SCHEDULED";
-    // Status: SCHEDULED, CONFIRMED, IN_PROGRESS, COMPLETED, CANCELLED, NO_SHOW
 
-    // Patient's reason for visit
     private String reasonForVisit;
     private String symptoms;
     private String patientNotes;
 
-    // Consultation Results (filled after appointment)
+    // Consultation Results
     private String diagnosis;
     private String prescription;
     private String treatmentPlan;
@@ -71,34 +61,30 @@ public class Appointment {
     private String followUpInstructions;
     private LocalDateTime followUpDate;
 
-    // Payment (optional)
+    // Payment
     private Double consultationFee;
-
     @Builder.Default
-    private String paymentStatus = "PENDING"; // PENDING, PAID, REFUNDED
-
-    private String paymentMethod; // CASH, CARD, INSURANCE
+    private String paymentStatus = "PENDING";
+    private String paymentMethod;
 
     // Cancellation/Rescheduling
     private LocalDateTime cancelledAt;
-    private String cancelledBy; // USER_ID or DOCTOR_ID
+    private String cancelledBy;
     private String cancellationReason;
-
-    private LocalDateTime rescheduledFrom; // Original date if rescheduled
+    private LocalDateTime rescheduledFrom;
     private String rescheduledReason;
 
     // Completion
     private LocalDateTime completedAt;
-    private LocalDateTime checkedInAt; // When patient arrived
+    private LocalDateTime checkedInAt;
 
-    // Patient Feedback (optional)
-    private Integer rating; // 1-5 stars
+    // Patient Feedback
+    private Integer rating;
     private String patientFeedback;
 
     // Reminders
     @Builder.Default
     private Boolean reminderSent = false;
-
     private LocalDateTime reminderSentAt;
 
     @CreatedDate
@@ -107,12 +93,9 @@ public class Appointment {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    private String createdBy; // USER_ID who created
+    private String createdBy;
 
-    // ===================================
     // Business Methods
-    // ===================================
-
     public boolean isScheduled() {
         return "SCHEDULED".equals(status) || "CONFIRMED".equals(status);
     }
@@ -125,24 +108,15 @@ public class Appointment {
         return "CANCELLED".equals(status);
     }
 
-    /**
-     * Check if appointment can be rescheduled
-     */
     public boolean canBeRescheduled() {
         return isScheduled() && appointmentDate.isAfter(LocalDateTime.now());
     }
 
-    /**
-     * Check if appointment can be cancelled (24h notice)
-     */
     public boolean canBeCancelled() {
         return isScheduled() &&
                 appointmentDate.isAfter(LocalDateTime.now().plusHours(24));
     }
 
-    /**
-     * Complete appointment with consultation details
-     */
     public void complete(String diagnosis, String prescription,
                          String treatmentPlan, String notes) {
         this.status = "COMPLETED";
@@ -153,9 +127,6 @@ public class Appointment {
         this.doctorNotes = notes;
     }
 
-    /**
-     * Cancel appointment
-     */
     public void cancel(String cancelledBy, String reason) {
         this.status = "CANCELLED";
         this.cancelledAt = LocalDateTime.now();
@@ -163,24 +134,15 @@ public class Appointment {
         this.cancellationReason = reason;
     }
 
-    /**
-     * Mark patient as no-show
-     */
     public void markAsNoShow() {
         this.status = "NO_SHOW";
         this.updatedAt = LocalDateTime.now();
     }
 
-    /**
-     * Confirm appointment
-     */
     public void confirm() {
         this.status = "CONFIRMED";
     }
 
-    /**
-     * Patient checked in
-     */
     public void checkIn() {
         this.checkedInAt = LocalDateTime.now();
         this.status = "IN_PROGRESS";

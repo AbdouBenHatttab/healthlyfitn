@@ -25,7 +25,8 @@ public class UserController {
     
     private final UserService userService;
     private final PasswordService passwordService;
-    
+    private final UserService userService;
+
     @GetMapping("/profile")
     public ResponseEntity<ApiResponse<UserResponse>> getCurrentUserProfile(Authentication auth) {
         log.info("Getting current user profile");
@@ -62,4 +63,38 @@ public class UserController {
     //     UserResponse user = userService.getUserById(userId);
     //     return ResponseEntity.ok(ApiResponse.success(user));
     // }
+
+    /**
+     * Get multiple users by IDs (batch fetch)
+     * Used by doctor-service to fetch patient details
+     */
+    @PostMapping("/batch")
+    public ResponseEntity<List<UserDto>> getUsersByIds(@RequestBody List<String> userIds) {
+        log.info("📦 Batch fetching {} users", userIds.size());
+
+        List<UserDto> users = userService.getUsersByIds(userIds);
+
+        return ResponseEntity.ok(users);
+    }
+
+    /**
+     * Get user by ID (allow access from other services)
+     */
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable String userId) {
+        log.info("Getting user: {}", userId);
+
+        UserDto user = userService.getUserById(userId);
+
+        return ResponseEntity.ok(user);
+    }
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable String userId) {
+        // Allow access from other services (no @PreAuthorize)
+    }
+
+    @PostMapping("/batch")
+    public ResponseEntity<List<UserDto>> getUsersByIds(@RequestBody List<String> userIds) {
+        // Allow access from other services (no @PreAuthorize)
+    }
 }
